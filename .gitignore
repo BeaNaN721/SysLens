@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-ssr/
+
+# TS cache
+*.tsbuildinfo
+
+# env var
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+
+# Editor and OS
+*.swp"
