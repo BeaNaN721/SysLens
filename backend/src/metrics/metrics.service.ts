@@ -1,6 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { FsReaderService } from '../core/fs-reader.service.js';
 
+function parseMemNumber(raw: string, field: string): number {
+  const value = Number.parseInt(raw, 10);
+
+  if (Number.isNaN(value)) {
+    throw new Error(`Invalid numeric value for ${field}: ${raw}`);
+  }
+  return value;
+}
+
 @Injectable()
 export class MetricsService {
   constructor(private readonly fs: FsReaderService) {}
@@ -17,9 +26,9 @@ export class MetricsService {
     const mem = Object.fromEntries(
       meminfoRaw.split('\n').filter(Boolean).map(l => {
         const [k, v] = l.split(':');
-        return [k.trim(), parseInt(v)];
+        return [k.trim(), parseMemNumber(v.trim(), k.trim())];
       }),
-    ) as Record<string, number>;
+    ) as Partial<Record<string, number>>;
 
     return {
       uptime: { seconds: up, idle },
@@ -27,8 +36,8 @@ export class MetricsService {
       memory: {
         total: mem.MemTotal,
         free: mem.MemFree,
-        available: mem.MemAvailable,
-        used: mem.MemTotal - mem.MemAvailable,
+        available: mem.MemAvailable ?? null,
+        used: mem.MemAvailable == null || mem.MemTotal == null ? null : mem.MemTotal - mem.MemAvailable,
       },
     };
   }
